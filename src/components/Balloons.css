@@ -1,0 +1,90 @@
+.balloons-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.balloon {
+  position: absolute;
+  bottom: -150px;
+  animation: float-up 15s ease-in infinite;
+}
+
+@keyframes float-up {
+  0% {
+    bottom: -150px;
+    transform: translateX(0) rotate(0deg);
+  }
+  50% {
+    transform: translateX(30px) rotate(5deg);
+  }
+  100% {
+    bottom: 110vh;
+    transform: translateX(-20px) rotate(-5deg);
+  }
+}
+
+.balloon-body {
+  width: 60px;
+  height: 75px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  position: relative;
+  box-shadow: 
+    inset -5px -10px 15px rgba(0, 0, 0, 0.15),
+    0 5px 20px rgba(0, 0, 0, 0.2);
+  animation: sway 3s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.balloon-highlight {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 20px;
+  height: 25px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent);
+  border-radius: 50%;
+}
+
+.balloon-string {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
+  animation: string-sway 3s ease-in-out infinite;
+}
+
+@keyframes string-sway {
+  0%, 100% {
+    transform: translateX(-50%) rotate(-5deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(5deg);
+  }
+}
+
+/* Individual balloon animations with different timings */
+.balloon:nth-child(1) { animation-duration: 14s; }
+.balloon:nth-child(2) { animation-duration: 16s; }
+.balloon:nth-child(3) { animation-duration: 13s; }
+.balloon:nth-child(4) { animation-duration: 17s; }
+.balloon:nth-child(5) { animation-duration: 15s; }
+.balloon:nth-child(6) { animation-duration: 14.5s; }
+.balloon:nth-child(7) { animation-duration: 15.5s; }
+.balloon:nth-child(8) { animation-duration: 16.5s; }

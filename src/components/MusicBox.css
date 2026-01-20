@@ -1,0 +1,458 @@
+.music-box-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  perspective: 1000px;
+}
+
+.music-box {
+  position: relative;
+  width: 400px;
+  height: 350px;
+  transform-style: preserve-3d;
+}
+
+.box-body {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+.box-front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  border-radius: 15px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    inset 0 0 40px rgba(255, 255, 255, 0.3),
+    inset 0 8px 20px rgba(0, 0, 0, 0.15),
+    inset 0 -8px 15px rgba(255, 255, 255, 0.2);
+  border: 4px solid #fab1a0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.box-front::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  border: 3px solid rgba(139, 69, 19, 0.3);
+  border-radius: 10px;
+  box-shadow: 
+    inset 0 5px 15px rgba(0, 0, 0, 0.3),
+    inset 0 -5px 10px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.decorative-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.1) 10px, rgba(255, 255, 255, 0.1) 20px),
+    repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.05) 10px, rgba(255, 255, 255, 0.05) 20px);
+  opacity: 0.5;
+}
+
+.music-box-label {
+  position: relative;
+  z-index: 1;
+  font-size: 28px;
+  font-weight: bold;
+  color: #d63031;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+  font-family: 'Brush Script MT', cursive;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+}
+
+.box-side {
+  position: absolute;
+  right: -20px;
+  top: 10px;
+  width: 20px;
+  height: 260px;
+  background: linear-gradient(90deg, #fdcb6e 0%, #e17055 100%);
+  border-radius: 0 15px 15px 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.crank {
+  position: absolute;
+  right: -80px;
+  top: -8px;
+  transform-origin: 30px center;
+  cursor: grab;
+  transition: filter 0.2s;
+  width: 100px;
+  height: 100px;
+  z-index: 99;
+}
+
+.crank:hover {
+  filter: brightness(1.2);
+}
+
+.crank.dragging {
+  cursor: grabbing;
+  filter: brightness(1.3) drop-shadow(0 0 10px rgba(255, 107, 157, 0.8));
+}
+
+.crank.playing .crank-knob {
+  animation: pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.crank-arm {
+  position: absolute;
+  left: 30px;
+  top: 45px;
+  width: 50px;
+  height: 8px;
+  background: linear-gradient(90deg, #636e72 0%, #2d3436 100%);
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.crank-handle {
+  position: absolute;
+  left: 75px;
+  top: 35px;
+  width: 12px;
+  height: 30px;
+  background: linear-gradient(180deg, #e17055 0%, #d63031 100%);
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.crank-knob {
+  position: absolute;
+  left: 20px;
+  top: 40px;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle at 30% 30%, #74b9ff, #0984e3);
+  border-radius: 50%;
+  box-shadow: 
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 3px rgba(255, 255, 255, 0.5);
+  border: 2px solid #2d3436;
+}
+
+.crank-knob-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: #2d3436;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.instruction-hint {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 107, 157, 0.9);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.instruction-hint.fade-out {
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Music Box Interior */
+.box-interior {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateZ(-20px);
+  width: 250px;
+  height: 180px;
+  opacity: 1;
+  z-index: 20;
+  pointer-events: none;
+  filter: brightness(0.85);
+}
+
+/* Horizontal shaft inside box */
+.horizontal-shaft {
+  position: absolute;
+  left: 15%;
+  top: 0%;
+  margin-top: -14px;
+  width: 107%;
+  height: 8px;
+  background: 
+    repeating-linear-gradient(
+      to bottom,
+      #808080 0px,
+      #909090 1px,
+      #a8a8a8 2px,
+      #b8b8b8 3px,
+      #c8c8c8 4px,
+      #b8b8b8 5px,
+      #a8a8a8 6px,
+      #909090 7px,
+      #808080 8px
+    );
+  border-radius: 4px;
+  box-shadow: 
+    0 3px 10px rgba(0, 0, 0, 0.8),
+    inset 2px 0 3px rgba(255, 255, 255, 0.3),
+    inset -2px 0 3px rgba(0, 0, 0, 0.6),
+    inset 0 2px 3px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.5);
+  z-index: 19;
+  position: relative;
+  background-size: 100% 16px;
+
+  &.bottom {
+    top: 108%;
+    margin-top: 0;
+    margin-bottom: -14px;
+    width: 71%;
+    z-index: -1;
+  }
+}
+
+.horizontal-shaft::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 4px 4px 0 0;
+  pointer-events: none;
+}
+
+/* Vertical shaft connecting horizontal shaft to drum */
+.vertical-shaft {
+  position: absolute;
+  right: 35px;
+  top: -10px;
+  width: 8px;
+  height: 204px;
+  background: 
+    repeating-linear-gradient(
+      to right,
+      #808080 0px,
+      #909090 1px,
+      #a8a8a8 2px,
+      #b8b8b8 3px,
+      #c8c8c8 4px,
+      #b8b8b8 5px,
+      #a8a8a8 6px,
+      #909090 7px,
+      #808080 8px
+    );
+  border-radius: 4px;
+  box-shadow: 
+    0 3px 10px rgba(0, 0, 0, 0.8),
+    inset 2px 0 3px rgba(255, 255, 255, 0.3),
+    inset -2px 0 3px rgba(0, 0, 0, 0.6);
+  z-index: 1;
+  background-size: 16px 100%;
+
+
+  &.left {
+    left: 15%;
+    height: 204px;
+    margin-bottom: -14px;
+  }
+}
+
+.vertical-shaft::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 4px 0 0 4px;
+  pointer-events: none;
+}
+
+/* Music Box Drum - Vertical Roller */
+.drum {
+  position: absolute;
+  width: 80px;
+  height: 160px;
+  right: -5px;
+  top: 50%;
+  margin-top: -80px;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.4));
+  perspective: 800px;
+  z-index: 9;
+  background: 
+    repeating-linear-gradient(
+      to right,
+      #b0b0b0 0px,
+      #c0c0c0 15px,
+      #d8d8d8 30px,
+      #c0c0c0 45px,
+      #b0b0b0 60px
+    );
+  border-radius: 20px;
+  background-size: 120px 100%;
+}
+
+.drum::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at 30% 50%,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.3) 15%,
+      rgba(255, 255, 255, 0.1) 25%,
+      transparent 40%
+    );
+  border-radius: 20px;
+  box-shadow: 
+    inset -12px 0 30px rgba(0, 0, 0, 0.4),
+    inset 12px 0 25px rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.drum-pin {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  margin-top: -4px;
+  background: 
+    radial-gradient(circle at 35% 35%, 
+      #3a3a3a,
+      #1a1a1a 50%,
+      #000000
+    );
+  border-radius: 50%;
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  transition: transform 0.15s ease-out;
+  transform-style: preserve-3d;
+}
+
+/* Tine Comb - Horizontal Layout */
+.tine-comb {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  /* gap: 2px; */
+  z-index: 25;
+  padding: 0px 4px 0px 12px;
+  width: 50px;
+  height: 160px;
+  justify-content: space-between;
+  background: 
+    linear-gradient(to right,
+      #c0c0c0 0%,
+      #a0a0a0 50%,
+      #808080 100%
+    );
+  border-radius: 12px 2px 2px 12px;
+  box-shadow: 
+    -3px 2px 18px rgba(0, 0, 0, 0.7),
+    inset 2px 0 4px rgba(255, 255, 255, 0.5),
+    inset -1px 0 3px rgba(0, 0, 0, 0.6);
+  border: 2px solid #707070;
+  border-right: none;
+}
+
+.tine {
+  height: 5px;
+  left: 35px;
+  background: 
+    linear-gradient(to right, 
+      #404040 0%,
+      #606060 10%,
+      #808080 25%,
+      #a0a0a0 45%,
+      #c0c0c0 65%,
+      #d8d8d8 85%,
+      #f0f0f0 100%
+    );
+  border-radius: 0;
+  box-shadow: 
+    0 3px 5px rgba(0, 0, 0, 0.6),
+    inset 0 2px 2px rgba(255, 255, 255, 0.8),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.5);
+  position: relative;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
+}
+
+.tine::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  /* width: 1px; */
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.6));
+  border-radius: 0 2px 2px 0;
+}
+
+@keyframes tineVibrate {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  75% { transform: translateX(1px); }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .music-box {
+    width: 90vw;
+    max-width: 350px;
+    transform: scale(0.85);
+  }
+}
+
