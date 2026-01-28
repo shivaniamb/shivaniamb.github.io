@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import MusicNotes from './MusicNotes';
 import './MusicBox.css';
 
 const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset }) => {
@@ -166,6 +167,7 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
 
   return (
     <div className="music-box-container">
+      <MusicNotes isPlaying={isPlaying} isVisible={!isIntroView && isLidOpen} />
       <div 
         className={`music-box ${isIntroView ? 'intro-view' : 'top-view'} ${isTransitioning ? 'transitioning' : ''}`}
         onClick={isIntroView ? handleIntroClick : undefined}
