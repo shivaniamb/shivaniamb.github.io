@@ -19,7 +19,14 @@ function App() {
     setDrumRotationDirection(isForward ? 1 : -1);
   };
 
-  const { isLoaded, isPlaying, handleRotation } = useAudioController(handleNotePlayed);
+  const { isLoaded, isPlaying, handleRotation, resetAudio } = useAudioController(handleNotePlayed);
+
+  // Callback to reset all state
+  const handleReset = () => {
+    setGearHit(0);
+    setDrumRotationDirection(1);
+    resetAudio();
+  };
 
   // Trigger party popper when music starts playing
   useEffect(() => {
@@ -47,6 +54,7 @@ function App() {
           isPlaying={isPlaying}
           gearHit={gearHit}
           drumRotationDirection={drumRotationDirection}
+          onReset={handleReset}
         />
 
         {!isLoaded && (

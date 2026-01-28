@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import './MusicBox.css';
 
-const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection }) => {
+const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset }) => {
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [cylinderRotation, setCylinderRotation] = useState(0);
@@ -50,6 +50,27 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection }) => {
     
     // Start view transition immediately
     setIsIntroView(false);
+    
+    // Complete transition after animation duration
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 1500);
+  };
+
+  const handleLidClick = (e) => {
+    if (isTransitioning || !isLidOpen) return;
+    e.stopPropagation(); // Prevent event bubbling
+    
+    setIsTransitioning(true);
+    setIsLidOpen(false);
+    
+    // Reset all music and crank state
+    setRotation(0);
+    setCylinderRotation(0);
+    if (onReset) onReset();
+    
+    // Start view transition back to isometric
+    setIsIntroView(true);
     
     // Complete transition after animation duration
     setTimeout(() => {
@@ -152,7 +173,11 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection }) => {
       >
         <div className="box-body">
           {/* Lid element */}
-          <div className={`box-lid ${isLidOpen ? 'opening' : ''}`}>
+          <div 
+            className={`box-lid ${isLidOpen ? 'opening' : ''}`}
+            onClick={handleLidClick}
+            style={{ cursor: isLidOpen && !isTransitioning ? 'pointer' : 'default' }}
+          >
             <div className="lid-surface">
               <div className="decorative-pattern"></div>
             </div>

@@ -121,6 +121,34 @@ export const useAudioController = (onNotePlayed) => {
     rotationAccumulatorRef.current = 0;
   };
 
+  const resetAudio = () => {
+    // Stop any playing audio
+    stopPlaying();
+    
+    // Clear all active notes
+    activeNotesRef.current.forEach(noteNodes => {
+      if (noteNodes && noteNodes.gainNode) {
+        noteNodes.gainNode.gain.cancelScheduledValues(audioContextRef.current.currentTime);
+        noteNodes.gainNode.gain.setValueAtTime(0, audioContextRef.current.currentTime);
+      }
+    });
+    activeNotesRef.current = [];
+    
+    // Reset note index to beginning
+    currentNoteIndexRef.current = 0;
+    
+    // Clear timeouts
+    if (stopTimeoutRef.current) {
+      clearTimeout(stopTimeoutRef.current);
+      stopTimeoutRef.current = null;
+    }
+    
+    // Reset timing and speed
+    lastRotationTimeRef.current = null;
+    currentSpeedRef.current = 1;
+    lastPlayedNoteRef.current = null;
+  };
+
   const handleRotation = (rotationDelta) => {
     if (!isLoaded) return;
 
@@ -184,5 +212,6 @@ export const useAudioController = (onNotePlayed) => {
     isLoaded,
     isPlaying,
     handleRotation,
+    resetAudio,
   };
 };
