@@ -195,6 +195,66 @@
   transform-style: preserve-3d;
 }
 
+/* Lid interior (visible when opened) */
+.lid-interior {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: rotateX(180deg);
+  border-radius: 0 0 15px 15px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Happy Birthday text */
+.birthday-text {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  animation: fadeInScale 0.5s ease-out;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.birthday-label {
+  font-size: 28px;
+  font-weight: bold;
+  color: #d63031;
+  font-family: 'Brush Script MT', 'Segoe Script', cursive;
+  text-shadow: 
+    2px 2px 4px rgba(255, 255, 255, 0.8),
+    0 0 10px rgba(255, 107, 157, 0.3);
+  margin-bottom: 8px;
+}
+
+.birthday-name {
+  font-size: 36px;
+  font-weight: bold;
+  color: #ff6b9d;
+  font-family: 'Brush Script MT', 'Segoe Script', cursive;
+  text-shadow: 
+    2px 2px 4px rgba(255, 255, 255, 0.8),
+    0 0 15px rgba(255, 107, 157, 0.4);
+  transition: opacity 0.4s ease-in-out;
+}
+
 .crank {
   position: absolute;
   right: -80px;

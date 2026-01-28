@@ -3,12 +3,17 @@ import MusicNotes from './MusicNotes';
 import './MusicBox.css';
 
 const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset }) => {
+  // Names array - populate with actual names later
+  const names = ['Shivani', 'Simpi', 'Vaani'];
+  
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [cylinderRotation, setCylinderRotation] = useState(0);
   const [isIntroView, setIsIntroView] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLidOpen, setIsLidOpen] = useState(false);
+  const [currentNameIndex, setCurrentNameIndex] = useState(0);
+  const [isNameVisible, setIsNameVisible] = useState(true);
   const crankRef = useRef(null);
   const lastAngleRef = useRef(0);
   const animationFrameRef = useRef(null);
@@ -165,6 +170,29 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
     }
   }, [gearHit, drumRotationDirection]);
 
+  // Cycle through names when playing
+  useEffect(() => {
+    let nameInterval;
+    if (isPlaying && isLidOpen) {
+      nameInterval = setInterval(() => {
+        // Fade out
+        setIsNameVisible(false);
+        
+        // Change name after fade out completes
+        setTimeout(() => {
+          setCurrentNameIndex(prev => (prev + 1) % names.length);
+          // Fade in
+          setIsNameVisible(true);
+        }, 400); // Wait for fade out (0.4s)
+      }, 2000); // Complete cycle every 2 seconds
+    } else {
+      setIsNameVisible(true); // Reset visibility when stopped
+    }
+    return () => {
+      if (nameInterval) clearInterval(nameInterval);
+    };
+  }, [isPlaying, isLidOpen, names.length]);
+
   return (
     <div className="music-box-container">
       <MusicNotes isPlaying={isPlaying} isVisible={!isIntroView && isLidOpen} />
@@ -182,6 +210,22 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
           >
             <div className="lid-surface">
               <div className="decorative-pattern"></div>
+            </div>
+            <div className="lid-interior">
+              <div
+                className={`birthday-text ${isPlaying && isLidOpen ? 'visible' : ''}`}
+                style={{
+                  visibility: isLidOpen ? 'visible' : 'hidden'
+                }}
+              >
+                <div className="birthday-label">Happy Birthday</div>
+                <div 
+                  className="birthday-name"
+                  style={{ opacity: isNameVisible ? 1 : 0 }}
+                >
+                  {names[currentNameIndex]}
+                </div>
+              </div>
             </div>
           </div>
           
