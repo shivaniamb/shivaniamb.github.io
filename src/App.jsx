@@ -10,11 +10,13 @@ function App() {
   const [selectedSong, setSelectedSong] = useState('hbd');
   const [triggerPopper, setTriggerPopper] = useState(false);
   const [gearHit, setGearHit] = useState(0);
+  const [drumRotationDirection, setDrumRotationDirection] = useState(1);
   const wasPlayingRef = useRef(false);
 
   // Callback when a note is played
-  const handleNotePlayed = () => {
+  const handleNotePlayed = (isForward) => {
     setGearHit(prev => prev + 1);
+    setDrumRotationDirection(isForward ? 1 : -1);
   };
 
   const { isLoaded, isPlaying, handleRotation } = useAudioController(handleNotePlayed);
@@ -44,6 +46,7 @@ function App() {
           onRotate={handleRotation}
           isPlaying={isPlaying}
           gearHit={gearHit}
+          drumRotationDirection={drumRotationDirection}
         />
 
         {!isLoaded && (

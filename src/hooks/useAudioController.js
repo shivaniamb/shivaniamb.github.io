@@ -71,7 +71,7 @@ export const useAudioController = (onNotePlayed) => {
     
     // Notify that a note was played
     if (onNotePlayed) {
-      onNotePlayed();
+      onNotePlayed(true);
     }
     
     // Clean up after note finishes
@@ -81,6 +81,39 @@ export const useAudioController = (onNotePlayed) => {
     
     // Move to next note
     currentNoteIndexRef.current = (currentNoteIndexRef.current + 1) % notesSequenceRef.current.length;
+  };
+
+  const playPreviousNote = (speedMultiplier) => {
+    if (!audioContextRef.current || notesSequenceRef.current.length === 0) return;
+
+    // Move to previous note
+    currentNoteIndexRef.current = (currentNoteIndexRef.current - 1 + notesSequenceRef.current.length) % notesSequenceRef.current.length;
+    
+    const noteData = notesSequenceRef.current[currentNoteIndexRef.current];
+    
+    // Adjust duration based on cranking speed
+    const adjustedDuration = noteData.duration / speedMultiplier;
+    
+    // Play the note with adjusted duration
+    const noteNodes = playMusicBoxNote(
+      audioContextRef.current,
+      noteData.frequency,
+      adjustedDuration,
+      gainNodeRef.current
+    );
+    
+    activeNotesRef.current.push(noteNodes);
+    lastPlayedNoteRef.current = Date.now();
+    
+    // Notify that a note was played
+    if (onNotePlayed) {
+      onNotePlayed(false);
+    }
+    
+    // Clean up after note finishes
+    setTimeout(() => {
+      activeNotesRef.current = activeNotesRef.current.filter(n => n !== noteNodes);
+    }, adjustedDuration * 1000 + 100);
   };
 
   const stopPlaying = () => {
@@ -98,6 +131,7 @@ export const useAudioController = (onNotePlayed) => {
     }
 
     const now = Date.now();
+    const isClockwise = rotationDelta > 0;
     
     // Calculate current cranking speed (degrees per second)
     if (lastRotationTimeRef.current) {
@@ -123,7 +157,13 @@ export const useAudioController = (onNotePlayed) => {
       
       // Play notes (usually just 1, but could be more if rotation was very fast)
       for (let i = 0; i < notesToPlay; i++) {
-        playNextNote(currentSpeedRef.current);
+        if (isClockwise) {
+          // Clockwise: play forward
+          playNextNote(currentSpeedRef.current);
+        } else {
+          // Anticlockwise: play in reverse
+          playPreviousNote(currentSpeedRef.current);
+        }
       }
       
       // Reduce accumulator by the exact amount used

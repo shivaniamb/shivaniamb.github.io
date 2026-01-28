@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import './MusicBox.css';
 
-const MusicBox = ({ onRotate, isPlaying, gearHit }) => {
+const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection }) => {
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [cylinderRotation, setCylinderRotation] = useState(0);
+  const [isIntroView, setIsIntroView] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isLidOpen, setIsLidOpen] = useState(false);
   const crankRef = useRef(null);
   const lastAngleRef = useRef(0);
   const animationFrameRef = useRef(null);
@@ -26,16 +29,32 @@ const MusicBox = ({ onRotate, isPlaying, gearHit }) => {
   };
 
   const handleMouseDown = (e) => {
+    if (isIntroView || isTransitioning) return;
     e.preventDefault();
     setIsDragging(true);
     lastAngleRef.current = calculateAngle(e.clientX, e.clientY);
   };
 
   const handleTouchStart = (e) => {
-    e.preventDefault();
+    if (isIntroView || isTransitioning) return;
+    if (e.cancelable) e.preventDefault();
     setIsDragging(true);
     const touch = e.touches[0];
     lastAngleRef.current = calculateAngle(touch.clientX, touch.clientY);
+  };
+
+  const handleIntroClick = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setIsLidOpen(true);
+    
+    // Start view transition immediately
+    setIsIntroView(false);
+    
+    // Complete transition after animation duration
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 1500);
   };
 
   const handleMouseMove = (e) => {
@@ -50,9 +69,9 @@ const MusicBox = ({ onRotate, isPlaying, gearHit }) => {
 
     setRotation((prev) => prev + delta);
     
-    // Notify parent about rotation
+    // Notify parent about rotation (with direction)
     if (onRotate && Math.abs(delta) > 0.5) {
-      onRotate(Math.abs(delta));
+      onRotate(delta);
     }
 
     lastAngleRef.current = currentAngle;
@@ -72,9 +91,9 @@ const MusicBox = ({ onRotate, isPlaying, gearHit }) => {
 
     setRotation((prev) => prev + delta);
     
-    // Notify parent about rotation
+    // Notify parent about rotation (with direction)
     if (onRotate && Math.abs(delta) > 0.5) {
-      onRotate(Math.abs(delta));
+      onRotate(delta);
     }
 
     lastAngleRef.current = currentAngle;
@@ -87,6 +106,19 @@ const MusicBox = ({ onRotate, isPlaying, gearHit }) => {
   const handleTouchEnd = () => {
     setIsDragging(false);
   };
+
+  useEffect(() => {
+    const crankElement = crankRef.current;
+    if (crankElement) {
+      crankElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+    }
+
+    return () => {
+      if (crankElement) {
+        crankElement.removeEventListener('touchstart', handleTouchStart);
+      }
+    };
+  }, [isIntroView, isTransitioning]);
 
   useEffect(() => {
     if (isDragging) {
@@ -107,14 +139,25 @@ const MusicBox = ({ onRotate, isPlaying, gearHit }) => {
   // Rotate drum when a note is hit
   useEffect(() => {
     if (gearHit > 0) {
-      setCylinderRotation(prev => prev + 14.4); // Rotate 14.4 degrees per note (25 notes = 360°)
+      setCylinderRotation(prev => prev + (14.4 * drumRotationDirection)); // Rotate 14.4 degrees per note, direction based on cranking
     }
-  }, [gearHit]);
+  }, [gearHit, drumRotationDirection]);
 
   return (
     <div className="music-box-container">
-      <div className="music-box">
+      <div 
+        className={`music-box ${isIntroView ? 'intro-view' : 'top-view'} ${isTransitioning ? 'transitioning' : ''}`}
+        onClick={isIntroView ? handleIntroClick : undefined}
+        style={{ cursor: isIntroView ? 'pointer' : 'default' }}
+      >
         <div className="box-body">
+          {/* Lid element */}
+          <div className={`box-lid ${isLidOpen ? 'opening' : ''}`}>
+            <div className="lid-surface">
+              <div className="decorative-pattern"></div>
+            </div>
+          </div>
+          
           <div className="box-front">
             <div className="decorative-pattern"></div>
             
@@ -185,14 +228,22 @@ const MusicBox = ({ onRotate, isPlaying, gearHit }) => {
             </div>
           </div>
           <div className="box-side"></div>
+          <div className="box-left"></div>
+          <div className="box-bottom"></div>
+          <div className="box-back"></div>
         </div>
         
         <div 
           ref={crankRef}
           className={`crank ${isDragging ? 'dragging' : ''} ${isPlaying ? 'playing' : ''}`}
-          style={{ transform: `rotate(${rotation}deg)` }}
+          style={{ 
+            transform: `rotate(${rotation}deg) ${!isIntroView ? 'translateZ(175px)' : 'translateZ(100px)'}`,
+            pointerEvents: isIntroView || isTransitioning ? 'none' : 'auto',
+            opacity: isIntroView ? 0.7 : 1,
+            right: (isIntroView) ? -80 : -76,
+            transition: (isIntroView || isTransitioning) ? 'filter 0.2s, transform 1.5s ease-in-out, right 1.5s ease-in-out' : 'filter 0.2s',
+          }}
           onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
         >
           <div className="crank-handle"></div>
           <div className="crank-arm"></div>
@@ -200,14 +251,18 @@ const MusicBox = ({ onRotate, isPlaying, gearHit }) => {
             <div className="crank-knob-center"></div>
           </div>
         </div>
-
-        {isDragging && (
-          <div className="instruction-hint fade-out">Keep Cranking!</div>
-        )}
-        {!isDragging && !isPlaying && (
-          <div className="instruction-hint">Click/Tap and drag the crank →</div>
-        )}
       </div>
+      {isIntroView && (
+          <div className={`touch-prompt ${isTransitioning ? 'fade-out' : ''}`}>
+          Touch the box to play
+          </div>
+      )}
+      {!isIntroView && isDragging && (
+        <div className="instruction-hint fade-out">Keep Cranking!</div>
+      )}
+      {!isIntroView && !isDragging && !isPlaying && (
+        <div className="instruction-hint">Click/Tap and drag the crank →</div>
+      )}
     </div>
   );
 };
