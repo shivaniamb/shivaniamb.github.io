@@ -16,6 +16,7 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
   const [isNameVisible, setIsNameVisible] = useState(true);
   const crankRef = useRef(null);
   const lastAngleRef = useRef(0);
+  const lastDistanceRef = useRef(0);
   const animationFrameRef = useRef(null);
 
   const getCrankCenter = () => {
@@ -31,6 +32,15 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
     const center = getCrankCenter();
     const dx = clientX - center.x;
     const dy = clientY - center.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    lastDistanceRef.current = distance;
+    
+    // Block if too close to center to prevent erratic calculations
+    if (distance < 40) {
+      return lastAngleRef.current;
+    }
+    
     return Math.atan2(dy, dx) * (180 / Math.PI);
   };
 
@@ -38,6 +48,10 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
     if (isIntroView || isTransitioning) return;
     e.preventDefault();
     setIsDragging(true);
+    const center = getCrankCenter();
+    const dx = e.clientX - center.x;
+    const dy = e.clientY - center.y;
+    lastDistanceRef.current = Math.sqrt(dx * dx + dy * dy);
     lastAngleRef.current = calculateAngle(e.clientX, e.clientY);
   };
 
@@ -46,6 +60,10 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
     if (e.cancelable) e.preventDefault();
     setIsDragging(true);
     const touch = e.touches[0];
+    const center = getCrankCenter();
+    const dx = touch.clientX - center.x;
+    const dy = touch.clientY - center.y;
+    lastDistanceRef.current = Math.sqrt(dx * dx + dy * dy);
     lastAngleRef.current = calculateAngle(touch.clientX, touch.clientY);
   };
 
@@ -94,6 +112,9 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
     if (delta > 180) delta -= 360;
     if (delta < -180) delta += 360;
 
+    // Ignore very small movements only, reduced threshold
+    if (Math.abs(delta) < 0.1) return;
+
     setRotation((prev) => prev + delta);
     
     // Notify parent about rotation (with direction)
@@ -115,6 +136,9 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
     // Handle angle wrap-around
     if (delta > 180) delta -= 360;
     if (delta < -180) delta += 360;
+
+    // Ignore very small movements only, reduced threshold
+    if (Math.abs(delta) < 0.1) return;
 
     setRotation((prev) => prev + delta);
     
