@@ -37,7 +37,7 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
     lastDistanceRef.current = distance;
     
     // Block if too close to center to prevent erratic calculations
-    if (distance < 40) {
+    if (distance < 20) {
       return lastAngleRef.current;
     }
     
