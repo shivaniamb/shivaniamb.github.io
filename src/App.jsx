@@ -11,6 +11,7 @@ function App() {
   const [triggerPopper, setTriggerPopper] = useState(false);
   const [gearHit, setGearHit] = useState(0);
   const [drumRotationDirection, setDrumRotationDirection] = useState(1);
+  const [isLidOpen, setIsLidOpen] = useState(false);
   const wasPlayingRef = useRef(false);
 
   // Callback when a note is played
@@ -19,7 +20,7 @@ function App() {
     setDrumRotationDirection(isForward ? 1 : -1);
   };
 
-  const { isLoaded, isPlaying, handleRotation, resetAudio } = useAudioController(handleNotePlayed);
+  const { isLoaded, isPlaying, handleRotation, resetAudio, resumeAudio } = useAudioController(handleNotePlayed);
 
   // Callback to reset all state
   const handleReset = () => {
@@ -55,6 +56,8 @@ function App() {
           gearHit={gearHit}
           drumRotationDirection={drumRotationDirection}
           onReset={handleReset}
+          onLidStateChange={setIsLidOpen}
+          resumeAudio={resumeAudio}
         />
 
         {!isLoaded && (

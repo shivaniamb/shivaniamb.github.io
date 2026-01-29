@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import MusicNotes from './MusicNotes';
 import './MusicBox.css';
 
-const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset }) => {
+const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset, onLidStateChange, resumeAudio }) => {
   // Names array - populate with actual names later
   const names = ['Shivani', 'Simpi', 'Vaani'];
   
@@ -47,6 +47,12 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
   const handleMouseDown = (e) => {
     if (isIntroView || isTransitioning) return;
     e.preventDefault();
+    
+    // Resume audio on crank grab (mobile fix)
+    if (resumeAudio) {
+      resumeAudio();
+    }
+    
     setIsDragging(true);
     const center = getCrankCenter();
     const dx = e.clientX - center.x;
@@ -58,6 +64,12 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
   const handleTouchStart = (e) => {
     if (isIntroView || isTransitioning) return;
     if (e.cancelable) e.preventDefault();
+    
+    // Resume audio on crank touch (mobile fix)
+    if (resumeAudio) {
+      resumeAudio();
+    }
+    
     setIsDragging(true);
     const touch = e.touches[0];
     const center = getCrankCenter();
@@ -69,8 +81,19 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
 
   const handleIntroClick = () => {
     if (isTransitioning) return;
+    
+    // Resume audio IMMEDIATELY on user tap (mobile fix)
+    if (resumeAudio) {
+      resumeAudio();
+    }
+    
     setIsTransitioning(true);
     setIsLidOpen(true);
+    
+    // Notify parent that lid is opening
+    if (onLidStateChange) {
+      onLidStateChange(true);
+    }
     
     // Start view transition immediately
     setIsIntroView(false);
@@ -356,7 +379,7 @@ const MusicBox = ({ onRotate, isPlaying, gearHit, drumRotationDirection, onReset
         <div className="instruction-hint fade-out">Keep Cranking!</div>
       )}
       {!isIntroView && !isDragging && !isPlaying && (
-        <div className="instruction-hint">Click/Tap and drag the crank →</div>
+        <div className="instruction-hint">Tap and drag the crank →</div>
       )}
     </div>
   );

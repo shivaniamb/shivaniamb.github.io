@@ -49,8 +49,13 @@ export const useAudioController = (onNotePlayed) => {
     };
   }, []);
 
-  const playNextNote = (speedMultiplier) => {
+  const playNextNote = async (speedMultiplier) => {
     if (!audioContextRef.current || notesSequenceRef.current.length === 0) return;
+
+    // Resume audio context if suspended (required for mobile browsers)
+    if (audioContextRef.current.state === 'suspended') {
+      await audioContextRef.current.resume();
+    }
 
     const noteData = notesSequenceRef.current[currentNoteIndexRef.current];
     
@@ -83,8 +88,13 @@ export const useAudioController = (onNotePlayed) => {
     currentNoteIndexRef.current = (currentNoteIndexRef.current + 1) % notesSequenceRef.current.length;
   };
 
-  const playPreviousNote = (speedMultiplier) => {
+  const playPreviousNote = async (speedMultiplier) => {
     if (!audioContextRef.current || notesSequenceRef.current.length === 0) return;
+
+    // Resume audio context if suspended (required for mobile browsers)
+    if (audioContextRef.current.state === 'suspended') {
+      await audioContextRef.current.resume();
+    }
 
     // Move to previous note
     currentNoteIndexRef.current = (currentNoteIndexRef.current - 1 + notesSequenceRef.current.length) % notesSequenceRef.current.length;
@@ -208,10 +218,21 @@ export const useAudioController = (onNotePlayed) => {
     }, 200); // Stop after 200ms of no rotation
   };
 
+  const resumeAudio = async () => {
+    if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+      try {
+        await audioContextRef.current.resume();
+      } catch (error) {
+        // Silent fail
+      }
+    }
+  };
+
   return {
     isLoaded,
     isPlaying,
     handleRotation,
     resetAudio,
+    resumeAudio,
   };
 };
